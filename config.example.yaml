@@ -1,0 +1,22 @@
+app:
+  url: "https://hbss-bridge.qraie.ai/workplace/en/hbss/"
+
+auth:
+  # If your org uses SSO/MFA, set `mode: storage_state` and generate a state file once.
+  mode: "credentials" # credentials | storage_state
+  username: "anudeep.n@hbssweb.com"
+  password: "Anu@Hbss2k26"
+  storage_state_path: "secrets/storage_state.json"
+
+run:
+  headless: false
+  slow_mo_ms: 100
+  timeout_ms: 30000
+  sheet_name: "Tickets"
+  grant_geolocation: true
+  geolocation_lat: 17.3850
+  geolocation_lon: 78.4867
+
+output:
+  results_xlsx: "output/results.xlsx"
+  artifacts_dir: "output/artifacts"

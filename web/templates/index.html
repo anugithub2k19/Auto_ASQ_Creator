@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASQ Ticket Migration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .logo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logo-header img {
+            max-height: 50px;
+            width: auto;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .file-info {
+            display: none;
+            background: #f0f2ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-name {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .file-status {
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f2ff;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e3ff;
+        }
+
+        .progress-container {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            background: #e0e3ff;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            min-width: 40px;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .timing-info {
+            display: none;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .timing-info.show {
+            display: flex;
+        }
+
+        .timing-item {
+            text-align: center;
+        }
+
+        .timing-label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .timing-value {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .results {
+            display: none;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .result-item.pass {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .result-item.fail {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.pass {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-badge.fail {
+            background: #f44336;
+            color: white;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .summary {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .summary.show {
+            display: block;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-header">
+            <img src="{{ url_for('static', filename='QRaie_Logo.png') }}" alt="Left Logo">
+            <img src="{{ url_for('static', filename='QRyde_Logo_v2-optimized.png') }}" alt="Right Logo">
+        </div>
+        <h1>ASQ Ticket Migration</h1>
+        <p class="subtitle">Upload your Excel file and migrate tickets to QRaie</p>
+
+        <div id="message" class="message"></div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+                Click to upload or drag and drop<br>
+                <small>Excel files (.xlsx, .xls)</small>
+            </div>
+        </div>
+
+        <input type="file" id="fileInput" accept=".xlsx,.xls">
+
+        <div id="fileInfo" class="file-info">
+            <div class="file-name" id="fileName"></div>
+            <div class="file-status" id="fileStatus">Validating...</div>
+        </div>
+
+        <button class="btn btn-primary" id="migrateBtn" disabled>
+            Migrate to QRaie
+        </button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Starting...</div>
+        </div>
+
+        <div class="timing-info" id="timingInfo">
+            <div class="timing-item">
+                <span class="timing-label">Start Time</span>
+                <span class="timing-value" id="startTime">--:--:--</span>
+            </div>
+            <div class="timing-item">
+                <span class="timing-label">End Time</span>
+                <span class="timing-value" id="endTime">--:--:--</span>
+            </div>
+        </div>
+
+        <div class="summary" id="summary">
+            <div class="summary-item">
+                <strong>Total Rows:</strong>
+                <span id="totalRows">0</span>
+            </div>
+            <div class="summary-item">
+                <strong>Passed:</strong>
+                <span id="passCount" style="color: #4caf50;">0</span>
+            </div>
+            <div class="summary-item">
+                <strong>Failed:</strong>
+                <span id="failCount" style="color: #f44336;">0</span>
+            </div>
+        </div>
+
+        <div class="results" id="results"></div>
+
+        <button class="btn btn-secondary" id="downloadBtn" style="display: none;">
+            Download Log File
+        </button>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileStatus = document.getElementById('fileStatus');
+        const migrateBtn = document.getElementById('migrateBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const results = document.getElementById('results');
+        const summary = document.getElementById('summary');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const message = document.getElementById('message');
+        const timingInfo = document.getElementById('timingInfo');
+        const startTimeEl = document.getElementById('startTime');
+        const endTimeEl = document.getElementById('endTime');
+
+        let uploadedFilePath = null;
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Handle file upload
+        async function handleFile(file) {
+            // Show message
+            showMessage('', '');
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    fileName.textContent = file.name;
+                    fileStatus.textContent = data.message;
+                    fileInfo.classList.add('show');
+                    migrateBtn.disabled = false;
+                    uploadedFilePath = data.file_path;
+                    showMessage(data.message, 'success');
+                } else {
+                    fileInfo.classList.remove('show');
+                    migrateBtn.disabled = true;
+                    uploadedFilePath = null;
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Upload failed. Please try again.', 'error');
+            }
+        }
+
+        // Migrate button click
+        migrateBtn.addEventListener('click', async () => {
+            if (!uploadedFilePath) return;
+
+            migrateBtn.disabled = true;
+            progressContainer.classList.add('show');
+            timingInfo.classList.add('show');
+            results.classList.remove('show');
+            summary.classList.remove('show');
+            downloadBtn.style.display = 'none';
+            startTimeEl.textContent = '--:--:--';
+            endTimeEl.textContent = '--:--:--';
+
+            try {
+                const response = await fetch('/migrate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ file_path: uploadedFilePath })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Poll for status
+                    pollStatus();
+                } else {
+                    showMessage(data.error, 'error');
+                    migrateBtn.disabled = false;
+                    progressContainer.classList.remove('show');
+                }
+            } catch (error) {
+                showMessage('Migration failed. Please try again.', 'error');
+                migrateBtn.disabled = false;
+                progressContainer.classList.remove('show');
+            }
+        });
+
+        // Poll status
+        function pollStatus() {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch('/status');
+                    const data = await response.json();
+
+                    const pct = Math.round(data.progress) || 0;
+                    progressFill.style.width = pct + '%';
+                    progressFill.textContent = pct > 0 ? pct + '%' : '';
+                    progressText.textContent = data.message;
+
+                    if (data.start_time) {
+                        startTimeEl.textContent = data.start_time;
+                    }
+
+                    if (!data.running) {
+                        clearInterval(interval);
+                        migrateBtn.disabled = false;
+
+                        if (data.end_time) {
+                            endTimeEl.textContent = data.end_time;
+                        }
+
+                        if (data.results && data.results.length > 0) {
+                            displayResults(data);
+                        }
+
+                        if (data.log_file) {
+                            downloadBtn.style.display = 'block';
+                        }
+                    }
+                } catch (error) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        // Display results
+        function displayResults(data) {
+            results.innerHTML = '';
+            results.classList.add('show');
+
+            summary.classList.add('show');
+            document.getElementById('totalRows').textContent = data.results.length;
+            document.getElementById('passCount').textContent = data.success_count || 0;
+            document.getElementById('failCount').textContent = data.fail_count || 0;
+
+            data.results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = `result-item ${result.status.toLowerCase()}`;
+                item.innerHTML = `
+                    <span>Row ${result.row}</span>
+                    <span class="status-badge ${result.status.toLowerCase()}">${result.status}</span>
+                `;
+                results.appendChild(item);
+            });
+        }
+
+        // Download log
+        downloadBtn.addEventListener('click', () => {
+            window.location.href = '/download-log';
+        });
+
+        // Show message
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = 'message show ' + type;
+            if (!text) {
+                message.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>

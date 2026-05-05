@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+config.yaml
+secrets/
+
+output/
+*.zip
+
+logs/
+uploads/
+tickets.xlsx
+tickets_new.xlsx
+
