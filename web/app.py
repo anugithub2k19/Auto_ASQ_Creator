@@ -34,7 +34,7 @@ def validate_excel(file_path):
     try:
         wb = load_workbook(file_path)
         ws = wb.active
-        headers = [cell.value for cell in ws[1]]
+        headers = [str(cell.value).strip() if cell.value else '' for cell in ws[1]]
         
         required_columns = [
             'Tenant', 'Project', 'Title', 'Module', 'Severity',
